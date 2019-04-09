@@ -1,14 +1,17 @@
-// SCALES USED TO INVERT COURT Y COORDS AND MAP SHOOTING PERCENTAGES OF BINS TO A FILL COLOR 
+import * as d3 from "d3";
+
+// SCALES USED TO INVERT COURT Y COORDS AND MAP SHOOTING PERCENTAGES OF BINS TO A FILL COLOR
+
 var yScale = d3.scaleLinear().domain([0, 47]).rangeRound([47, 0]);
 
 export default function() {
     // NBA court dimensions are 50ft sideline to sideline and 94feet baseline to baseline (47ft half court)
-    // Forcing at least a 500x470 ratio for the court in order to paint shots appropriately        
+    // Forcing at least a 500x470 ratio for the court in order to paint shots appropriately
     var width = 500,
         height = .94 * width;
 
     function court(selection){
-        
+
         selection.each(function(data){
             // Responsive container for the shotchart
             d3.select(this).style("max-width", width/16 + "em");
@@ -25,7 +28,7 @@ export default function() {
                     .classed("court-paint", true)
                     .append("rect")
                     .attr("width", 16)
-                    .attr("height", 19) 
+                    .attr("height", 19)
                     .attr("x", 25)
                     .attr("transform", "translate(" + -8 + "," + 0 + ")")
                     .attr("y", yScale(19));
@@ -39,7 +42,7 @@ export default function() {
                     .attr("y2", yScale(0));
                 svg.append("g")
                     .classed("inner-court-paint", true)
-                    .append("line")        
+                    .append("line")
                     .attr("x1", 31)
                     .attr("x2", 31)
                     .attr("y1", yScale(19))
@@ -51,7 +54,7 @@ export default function() {
                     .attr("id", "cut-off-top")
                     .append("rect")
                     .attr("width", 12)
-                    .attr("height", 6) 
+                    .attr("height", 6)
                     .attr("x", 25)
                     .attr("y", yScale(19)) // 47-19 (top of rectangle is pinned to foul line, which is at 19 ft)
                     .attr("transform", "translate(" + -6 + "," + 0 + ")");
@@ -66,7 +69,7 @@ export default function() {
                     .attr("id", "cut-off-bottom")
                     .append("rect")
                     .attr("width", 12)
-                    .attr("height", 6) 
+                    .attr("height", 6)
                     .attr("x", 25)
                     .attr("y", yScale(19)) /*foul line is 19 feet, then transform by 6 feet (circle radius) to pin rectangle above foul line..clip paths only render the parts of the circle that are in the rectangle path */
                     .attr("transform", "translate(" + -6 + "," + -6 + ")");
@@ -77,7 +80,7 @@ export default function() {
                     .attr("clip-path", "url(#cut-off-bottom)");
                 // Add backboard and rim
                 svg.append("g").classed("backboard", true)
-                    .append("line")        
+                    .append("line")
                     .attr("x1", 22)
                     .attr("x2", 28)
                     .attr("y1", yScale(4)) // 47-4
@@ -121,12 +124,12 @@ export default function() {
                     .attr("height", 23.75)
                     .attr("x", 25)
                     .attr("y", yScale(4.75)) // put recentagle at centerpoint of circle then translate by the inverse of the circle radius to cut off top half
-                    .attr("transform", "translate(" + -22 + "," + -23.75 + ")");                
+                    .attr("transform", "translate(" + -22 + "," + -23.75 + ")");
                 threePointArea.append("circle")
                     .attr("cx", 25)
                     .attr("cy", yScale(4.75))
                     .attr("r", 23.75)
-                    .attr("clip-path", "url(#three-point-cut-off)");                   
+                    .attr("clip-path", "url(#three-point-cut-off)");
                 threePointArea.append("line")
                     .attr("x1", 3)
                     .attr("x2", 3)
@@ -136,7 +139,7 @@ export default function() {
                     .attr("x1", 47)
                     .attr("x2", 47)
                     .attr("y1", yScale(14))
-                    .attr("y2", yScale(0)); 
+                    .attr("y2", yScale(0));
                 // Add key lines
                 var keyLines = svg.append("g").classed("key-lines", true);
                 keyLines.append("line")
@@ -186,11 +189,11 @@ export default function() {
                     .attr("x1", 0)
                     .attr("x2", 50)
                     .attr("y1", yScale(0))
-                    .attr("y2", yScale(0)); 
+                    .attr("y2", yScale(0));
 
                 svg.append("g").classed("shots", true);
-                
-            };            
+
+            };
         });
     };
 

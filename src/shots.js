@@ -1,21 +1,25 @@
+import * as d3 from "d3";
+import * as d3Hexbin from "d3-hexbin";
+import * as d3Tip from "d3-tip";
+
 var activeDisplay = "scatter";
 var activeTheme = "day";
-// SCALES USED TO INVERT COURT Y COORDS AND MAP SHOOTING PERCENTAGES OF BINS TO A FILL COLOR 
+// SCALES USED TO INVERT COURT Y COORDS AND MAP SHOOTING PERCENTAGES OF BINS TO A FILL COLOR
 var yScale = d3.scaleLinear().domain([0, 47]).rangeRound([47, 0]);
 var percentFormatter = d3.format(".2%");
 
 export default function() {
-    
+
     var hexRadiusValues = [.8, 1, 1.2],
         hexMinShotThreshold = 1,
         heatScale = d3.scaleQuantize().domain([0, 1]).range(['#5458A2', '#6689BB', '#FADC97', '#F08460', '#B02B48']),
         hexRadiusScale = d3.scaleQuantize().domain([0, 2]).range(hexRadiusValues),
         toolTips = false,
-        hexbin = d3_hexbin.hexbin()
+        hexbin = d3Hexbin.hexbin()
                 .radius(1.2)
                 .x(function(d) { return d.key[0]; }) // accessing the x, y coords from the nested json key
-                .y(function(d) { return yScale(d.key[1]); });        
-    
+                .y(function(d) { return yScale(d.key[1]); });
+
     var _nestShotsByLocation = function(data) {
         var nestedData = d3.nest()
             .key(function(d) {
@@ -44,7 +48,7 @@ export default function() {
         data.makes = makes;
         return data;
     };
-    
+
 
     function shots(selection){
 
@@ -59,7 +63,7 @@ export default function() {
                 if (legends.empty() === false){
                     legends.remove();
                 }
-                
+
                 var shots = shotsGroup.selectAll(".shot")
                                     .data(data, function(d){ return [d.x, d.y]; });
                 shots.exit()
@@ -69,13 +73,13 @@ export default function() {
                     .remove();
 
                 if (toolTips) {
-                    var tool_tip = d3.tip()
+                    var tool_tip = d3Tip.tip()
                       .attr("class", "d3-tip")
                       .offset([-8, 0])
-                      .html(function(d) { 
-                            return d.shot_distance + "' " + d.action_type; 
+                      .html(function(d) {
+                            return d.shot_distance + "' " + d.action_type;
                         });
-                    
+
                     shotsGroup.call(tool_tip);
                 }
 
@@ -95,7 +99,7 @@ export default function() {
                     .on('mouseout', function(d) { if (toolTips) {tool_tip.hide(d);} })
                     .transition().duration(1000)
                     .attr("r", .5);
-                
+
             }
             else if (activeDisplay === "hexbin"){
 
@@ -105,21 +109,21 @@ export default function() {
                 shots.exit()
                     .transition().duration(1000)
                     .attr("r", 0)
-                    .attr("d", hexbin.hexagon(0))                
+                    .attr("d", hexbin.hexagon(0))
                     .remove();
-                
+
                 if (toolTips) {
-                    var tool_tip = d3.tip()
+                    var tool_tip = d3Tip.tip()
                       .attr("class", "d3-tip")
                       .offset([-8, 0])
-                      .html(function(d) { 
-                            return d.makes + " / " + d.attempts + " (" + percentFormatter(d.shootingPercentage) + ")"; 
+                      .html(function(d) {
+                            return d.makes + " / " + d.attempts + " (" + percentFormatter(d.shootingPercentage) + ")";
                         });
-                    
+
                     shotsGroup.call(tool_tip);
                 }
 
-                shots.enter()                
+                shots.enter()
                     .append("path")
                     .classed("shot", true)
                     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
@@ -127,7 +131,7 @@ export default function() {
                     .on('mouseover', function(d) { if (toolTips) {tool_tip.show(d);} })
                     .on('mouseout', function(d) { if (toolTips) {tool_tip.hide(d);} })
                     .transition().duration(1000)
-                    .attr("d", function(d) { 
+                    .attr("d", function(d) {
                                 if (d.length >= hexMinShotThreshold) {
                                     if (d.length <= 3){
                                         return hexbin.hexagon(hexRadiusScale(0));
@@ -138,10 +142,10 @@ export default function() {
                                     else {
                                         return hexbin.hexagon(hexRadiusScale(2));
                                     }
-                                } 
+                                }
                             })
                     .style("fill", function(d) { return heatScale(d.shootingPercentage); });
-                
+
                 // CHANGE TO USE SELECTION.EMPTY()
                 if (legends.empty() === true){
                     var legendSVG = d3.select(this).append('svg').attr("viewBox", "0, 0, " + 50 + ", " + 10 + "").attr('id', 'legends'),
@@ -152,49 +156,49 @@ export default function() {
 
                     efficiencyLegend.append("text")
                                     .classed('legend-text', true)
-                                    .attr("x", 40)             
+                                    .attr("x", 40)
                                     .attr("y", 5)
-                                    .attr("text-anchor", "middle") 
+                                    .attr("text-anchor", "middle")
                                     .text("Efficiency");
                     efficiencyLegend.append("text")
                                     .classed("legend-text", true)
-                                    .attr("x", 34.25)             
+                                    .attr("x", 34.25)
                                     .attr("y", 2.5)
-                                    .attr("text-anchor", "end") 
+                                    .attr("text-anchor", "end")
                                     .text("cold");
                     efficiencyLegend.append("text")
                                     .classed("legend-text", true)
-                                    .attr("x", 45.75)             
+                                    .attr("x", 45.75)
                                     .attr("y", 2.5)
-                                    .attr("text-anchor", "start") 
+                                    .attr("text-anchor", "start")
                                     .text("hot");
                     efficiencyLegend.selectAll('path').data(heatScale.range())
                                     .enter()
                                     .append('path')
                                     .attr("transform", function (d, i) {
-                                      return "translate(" + 
+                                      return "translate(" +
                                         (35 + ((1 + i*2) * 1)) + ", " + 2 + ")";
                                     })
                                     .attr('d', hexbin.hexagon(0))
                                     .transition().duration(1000)
                                     .attr('d', hexbin.hexagon(1))
                                     .style('fill', function (d) { return d; });
-                    efficiencyLegend.selectAll("text").style("fill", function(){ 
+                    efficiencyLegend.selectAll("text").style("fill", function(){
                                         if (activeTheme === "night"){ return "white"; }
                                         else if (activeTheme === "day"){ return "black"; };
                                     });
-                    
+
                     frequencyLegend.append("text")
                                     .classed('legend-text', true)
-                                    .attr("x", 10.25)             
+                                    .attr("x", 10.25)
                                     .attr("y", 5)
-                                    .attr("text-anchor", "middle")  
+                                    .attr("text-anchor", "middle")
                                     .text("Frequency");
                     frequencyLegend.append("text")
                                     .classed("legend-text", true)
-                                    .attr("x", 6.25)             
+                                    .attr("x", 6.25)
                                     .attr("y", 2.5)
-                                    .attr("text-anchor", "end")  
+                                    .attr("text-anchor", "end")
                                     .text("low");
                     frequencyLegend.selectAll('path').data(hexRadiusValues)
                                     .enter()
@@ -208,36 +212,36 @@ export default function() {
                                     .attr('d', function (d) { return hexbin.hexagon(d); })
                     frequencyLegend.append("text")
                                     .classed("legend-text", true)
-                                    .attr("x", 13.75)             
+                                    .attr("x", 13.75)
                                     .attr("y", 2.5)
-                                    .attr("text-anchor", "start")  
+                                    .attr("text-anchor", "start")
                                     .text("high");
-                    
-                    frequencyLegend.selectAll("text").style("fill", function(){ 
+
+                    frequencyLegend.selectAll("text").style("fill", function(){
                                         if (activeTheme === "night"){ return "white"; }
                                         else if (activeTheme === "day"){ return "black"; };
                                     })
-                    frequencyLegend.selectAll("path").style("fill", function(){ 
+                    frequencyLegend.selectAll("path").style("fill", function(){
                                         if (activeTheme === "night"){ return "none"; }
                                         else if (activeTheme === "day"){ return "grey"; };
                                     });
-                };                                                      
+                };
             };
         });
     };
-  
+
   shots.displayType = function(_) {
     if (!arguments.length) return activeDisplay;
     activeDisplay = _;
     return shots;
   };
-  
+
   shots.shotRenderThreshold = function(_) {
     if (!arguments.length) return hexMinShotThreshold;
     hexMinShotThreshold = _;
     return shots;
-  }; 
-  
+  };
+
   shots.displayToolTips = function(_) {
     if (!arguments.length) return toolTips;
     toolTips = _;
