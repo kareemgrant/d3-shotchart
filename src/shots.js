@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import * as d3Hexbin from "d3-hexbin";
-import * as d3Tip from "d3-tip";
+import tip from "d3-tip";
 
 var activeDisplay = "scatter";
 var activeTheme = "day";
@@ -73,7 +73,7 @@ export default function() {
                     .remove();
 
                 if (toolTips) {
-                    var tool_tip = d3Tip.tip()
+                    var tool_tip = tip()
                       .attr("class", "d3-tip")
                       .offset([-8, 0])
                       .html(function(d) {
@@ -113,7 +113,7 @@ export default function() {
                     .remove();
 
                 if (toolTips) {
-                    var tool_tip = d3Tip.tip()
+                    var tool_tip = tip()
                       .attr("class", "d3-tip")
                       .offset([-8, 0])
                       .html(function(d) {
